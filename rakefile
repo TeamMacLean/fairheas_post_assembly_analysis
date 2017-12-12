@@ -1,0 +1,50 @@
+
+namespace :signalp do
+  file "results/non-rxlr_in_secretome_no_signalp.fasta" => ["scripts/remove_signalp_sequence.py", "data/non-rxlr_in_secretome.fasta"] do
+    sh "source python-2.7.11; python scripts/remove_signalp_sequence.py data/non-rxlr_in_secretome.fasta > results/non-rxlr_in_secretome_no_signalp.fasta"
+  end
+
+  file "results/rxlr_in_secretome_no_signalp.fasta" => ["scripts/remove_signalp_sequence.py", "data/rxlr_in_secretome.fasta"] do
+    sh "source python-2.7.11; python scripts/remove_signalp_sequence.py data/rxlr_in_secretome.fasta > results/rxlr_in_secretome_no_signalp.fasta"
+  end
+
+  multitask :remove_signalp => ["results/non-rxlr_in_secretome_no_signalp.fasta", "results/rxlr_in_secretome_no_signalp.fasta"]
+
+end
+
+namespace :tblastnMap do
+  file "results/non-rxlr_in_secretome_no_signalp_tblastn.out" => ["signalp:remove_signalp"] do
+    sh "source blast+-2.2.28; tblastn -db /tsl/data/assemblies/fairheas/final_assembly -max_hsps_per_subject 1 -outfmt 6 -max_target_seqs 1 -out results/non-rxlr_in_secretome_no_signalp_tblastn.out -query results/non-rxlr_in_secretome_no_signalp.fasta"
+  end
+
+  file "results/rxlr_in_secretome_no_signalp_tblastn.out" => ["signalp:remove_signalp"] do
+    sh "source blast+-2.2.28; tblastn -db /tsl/data/assemblies/fairheas/final_assembly -max_hsps_per_subject 1 -outfmt 6 -max_target_seqs 1 -out results/rxlr_in_secretome_no_signalp_tblastn.out -query results/rxlr_in_secretome_no_signalp.fasta"
+  end
+
+  multitask :run_tblastn => ["results/non-rxlr_in_secretome_no_signalp_tblastn.out", "results/rxlr_in_secretome_no_signalp_tblastn.out"]
+end
+
+namespace :get_positions do
+
+  file "results/non-rxlr_in_secretome_no_signalp_full_length.txt" => ["tblastnMap:run_tblastn"] do
+    sh "python scripts/get_mapped_nucleotide_sequence_from_refseq.py data/non-rxlr_in_secretome_no_signalp.fasta results/non-rxlr_in_secretome_no_signalp_tblastn.out"
+  end
+  file "results/rxlr_in_secretome_no_signalp_full_length.txt" => ["tblastnMap:run_tblastn"] do
+    sh "python scripts/get_mapped_nucleotide_sequence_from_refseq.py data/rxlr_in_secretome_no_signalp.fasta results/rxlr_in_secretome_no_signalp_tblastn.out"
+  end
+
+  multitask :run => ["results/non-rxlr_in_secretome_no_signalp_full_length.txt", "results/rxlr_in_secretome_no_signalp_full_length.txt"]
+end
+
+namespace :get_supersequence do
+  file "results/non-rxlr_in_secretome_no_signalp_supersequence.fasta" => ["get_positions:run"] do
+    sh "python scripts/get_subseq_from_refseq.py /tsl/data/assemblies/fairheas/final_assembly.fasta data/non-rxlr_in_secretome_no_signalp.fasta"
+  end
+  file "results/rxlr_in_secretome_no_signalp_supersequence.fasta" => ["get_positions:run"] do
+    sh "python scripts/get_subseq_from_refseq.py /tsl/data/assemblies/fairheas/final_assembly.fasta data/rxlr_in_secretome_no_signalp.fasta"
+  end
+  task :run => ["results/non-rxlr_in_secretome_no_signalp_supersequence.fasta", "rxlr_in_secretome_no_signalp_supersequence.fasta"]
+end
+
+
+task :default => ["get_supersequence:run"]
