@@ -1,0 +1,16 @@
+## Introduction
+
+The objective of this package are:
+
+1) Remove signalp subsequence from a protein sequence. The position of signalp is in the protein sequence ID
+2) The remaining  mature protein sequence is then mapped to an assembly of FASTA contig sequences using tblastn
+3) The region in the reference sequence (which is the assembly file) that mapped exactly without any gaps to a protein sequence is extracted with 1000 bps from either side of the mapped region.
+4) All extracted sequences are concatenated to a long sequence separated with a N.
+
+## Requirements
+
+1) rake
+2) python
+3) biopython
+
+
