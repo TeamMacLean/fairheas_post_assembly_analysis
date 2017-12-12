@@ -13,4 +13,15 @@ The objective of this package are:
 2) python
 3) biopython
 
+## Analysis Methods
 
+The mapped region from reference sequence is extracted only if a protein sequence is mapped full length  without a gap. The subject sequence and positions of the first mapped region is output in a file that ends with full_length.txt
+
+Protein sequences may also map 100% without gap in multiple regions/contigs of reference sequence. In that case, the subject sequence and positions of mapped regions are output in a file that ends with multiple.txt
+
+Files ending with full_length.txt and multiple.txt have six columns in the order given below
+Subjectid SubjectStartPosition SubjectEndPosition Queryid QueryStartPosition QueryEndPosition
+
+Extracted mapped regions from reference sequence are concatenated to a super long sequence and saved in a file that ends with supersequence.fasta
+
+Multiple hit regions are also extracted and saved as a separated fasta file ending with multiplehits.fasta
