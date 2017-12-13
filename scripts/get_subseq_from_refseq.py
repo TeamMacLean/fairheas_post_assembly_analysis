@@ -32,6 +32,7 @@ def get_positions(filename):
 subseq_positions=get_positions(basefilename + "_full_length.txt")
 multiple_hits_subseq_positions=get_positions(basefilename + "_multiple.txt")
 supersequence=open(basefilename + "_supersequence.fasta", "w")
+full_length_hits_sequences=open(basefilename + "_full_length.fasta", "w")
 multiple_hits_sequences=open(basefilename+"_multiplehits.fasta", "w")
 
 super_concat_sequence=""
@@ -51,8 +52,11 @@ for record in SeqIO.parse(inputfasta, "fasta"):
             #print ">" + seqid
             if minpos - 1000 < 0:
                 super_concat_sequence+=ntseq[:maxpos] + "N"
+                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[:maxpos]+"\n")
             else:
                 super_concat_sequence+=ntseq[minpos-1000:maxpos+1000]+"N"
+                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[minpos-1000:maxpos+1000]+"\n")
+
 
     if seqid in multiple_hits_subseq_positions.keys():
         for position in multiple_hits_subseq_positions[seqid]:
@@ -70,4 +74,5 @@ supersequence.write(super_concat_sequence + "\n")
 #print super_concat_sequence
 multiple_hits_sequences.close()
 supersequence.close()
+full_length_hits_sequences.close()
 exit(0)
