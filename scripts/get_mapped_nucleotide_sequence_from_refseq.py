@@ -30,6 +30,7 @@ def get_full_mapped_sequences(protein_sequence, tblastn_out):
     query_added=[]
 
     full_length_sequences=open(basefilename + "_full_length.txt", "w")
+    non_full_length_sequences=open(basefilename+ "_non_full_length.txt", "w")
     multiple=open(basefilename + "_multiple.txt", "w")
 
     tblastn_filename=open(tblastn_out)
@@ -64,8 +65,9 @@ def get_full_mapped_sequences(protein_sequence, tblastn_out):
         #    print "\t".join(array) + " ends at same length"
 
         else:
-            continue
+            non_full_length_sequences.write("\t".join([subject, subject_map_start, subject_map_end, query, query_map_start, query_map_end]) + "\n")
     full_length_sequences.close()
+    non_full_length_sequences.close()
     multiple.close()
 
 
