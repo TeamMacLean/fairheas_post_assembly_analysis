@@ -32,11 +32,13 @@ def get_positions(filename):
 subseq_positions=get_positions(basefilename + "_full_length.txt")
 multiple_hits_subseq_positions=get_positions(basefilename + "_multiple.txt")
 supersequence=open(basefilename + "_supersequence.fasta", "w")
-full_length_hits_sequences=open(basefilename + "_full_length.fasta", "w")
+full_length_hits_sequences=open(basefilename + "_full_length_90bp_upstream.fasta", "w")
 multiple_hits_sequences=open(basefilename+"_multiplehits.fasta", "w")
 
 super_concat_sequence=""
 
+upstream=90
+downstream=0
 for record in SeqIO.parse(inputfasta, "fasta"):
     seqid=record.description
     ntseq=str(record.seq)
@@ -50,12 +52,12 @@ for record in SeqIO.parse(inputfasta, "fasta"):
                 minpos, maxpos=maxpos, minpos
 
             #print ">" + seqid
-            if minpos - 1000 < 0:
-                super_concat_sequence+=ntseq[:maxpos] + "N"
-                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[:maxpos]+"\n")
+            if minpos - upstream < 0:
+                super_concat_sequence+=ntseq[:maxpos+downstream] + "N"
+                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[:maxpos+downstream]+"\n")
             else:
-                super_concat_sequence+=ntseq[minpos-1000:maxpos+1000]+"N"
-                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[minpos-1000:maxpos+1000]+"\n")
+                super_concat_sequence+=ntseq[minpos-upstream:maxpos+downstream]+"N"
+                full_length_hits_sequences.write(">"+seqid+"\n"+ntseq[minpos-upstream:maxpos+downstream]+"\n")
 
 
     if seqid in multiple_hits_subseq_positions.keys():
